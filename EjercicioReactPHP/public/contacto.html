@@ -1,19 +1,44 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Contacto</title>
-    <link rel="stylesheet" href="/style.css">
+  <meta charset="UTF-8">
+  <title>Formulario de Contacto</title>
+  <link rel="stylesheet" href="/style.css">
 </head>
 <body>
-    <h1>Formulario de Contacto</h1>
-    <form action="/data" method="POST">
-        <label for="name">Nombre:</label>
-        <input type="text" id="name" name="name" required>
-        <label for="email">Correo:</label>
-        <input type="email" id="email" name="email" required>
-        <button type="submit">Enviar</button>
-    </form>
+  <h1>Contáctanos</h1>
+  <form id="formContacto">
+    <input type="text" name="nombre" placeholder="Tu nombre" required><br>
+    <input type="email" name="email" placeholder="Tu correo" required><br>
+    <textarea name="mensaje" placeholder="Tu mensaje" required></textarea><br>
+    <button type="submit">Enviar</button>
+  </form>
+  <p id="mensajeEstado"></p>
+
+  <script>
+    document.getElementById('formContacto').addEventListener('submit', function(e) {
+      e.preventDefault();
+      const form = e.target;
+      const data = {
+        nombre: form.nombre.value,
+        email: form.email.value,
+        mensaje: form.mensaje.value
+      };
+
+      fetch('/contacto', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(data)
+      })
+      .then(res => res.json())
+      .then(res => {
+        document.getElementById('mensajeEstado').textContent = 'Mensaje enviado correctamente.';
+        form.reset();
+      })
+      .catch(err => {
+        document.getElementById('mensajeEstado').textContent = 'Error al enviar mensaje.';
+      });
+    });
+  </script>
 </body>
 </html>

@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>CRUD - Administrar Datos</title>
+  <link rel="stylesheet" href="/style.css">
+</head>
+<body>
+  <h1>Administrar Datos</h1>
+
+  <h2>Añadir o Editar Usuario</h2>
+  <form id="addForm">
+    <input type="text" id="nombre" placeholder="Nombre" required>
+    <input type="email" id="email" placeholder="Correo Electrónico" required>
+    <input type="hidden" id="userId"> <!-- Este campo se usará para editar -->
+    <button type="submit">Añadir</button>
+  </form>
+
+  <h2>Lista de Usuarios</h2>
+  <ul id="userList"></ul>
+
+  <script>
+    // Función para cargar los usuarios existentes
+    async function loadUsers() {
+      const response = await fetch('/data');
+      const users = await response.json();
+      const userList = document.getElementById('userList');
+      userList.innerHTML = ''; // Limpiar lista antes de volver a cargarla
+      users.forEach(user => {
+        const li = document.createElement('li');
+        li.innerHTML = `
+          ${user.nombre} (${user.email}) 
+          <button onclick="editUser(${user.id})">Editar</button>
+          <button onclick="deleteUser(${user.id})">Eliminar</button>
+        `;
+        userList.appendChild(li);
+      });
+    }
+
+    // Función para añadir un nuevo usuario
+    document.getElementById('addForm').addEventListener('submit', async (event) => {
+      event.preventDefault();
+      const nombre = document.getElementById('nombre').value;
+      const email = document.getElementById('email').value;
+      const userId = document.getElementById('userId').value;
+
+      let method = 'POST';
+      let url = '/data';
+      let body = JSON.stringify({ nombre, email });
+
+      if (userId) { // Si hay un ID de usuario, estamos editando
+        method = 'PATCH';
+        url = '/data';
+        body = JSON.stringify({ id: userId, nombre, email });
+      }
+
+      const response = await fetch(url, {
+        method: method,
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: body
+      });
+
+      if (response.ok) {
+        loadUsers(); // Recargar los usuarios
+        clearForm(); // Limpiar el formulario
+      } else {
+        alert('Error al guardar el usuario');
+      }
+    });
+
+    // Función para eliminar un usuario
+    async function deleteUser(id) {
+      const response = await fetch('/data', {
+        method: 'DELETE',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ id })
+      });
+
+      if (response.ok) {
+        loadUsers(); // Recargar los usuarios
+      } else {
+        alert('Error al eliminar el usuario');
+      }
+    }
+
+    // Función para editar un usuario
+    async function editUser(id) {
+      const response = await fetch('/data');
+      const users = await response.json();
+      const user = users.find(user => user.id === id);
+
+      document.getElementById('nombre').value = user.nombre;
+      document.getElementById('email').value = user.email;
+      document.getElementById('userId').value = user.id;
+    }
+
+    // Función para limpiar el formulario
+    function clearForm() {
+      document.getElementById('nombre').value = '';
+      document.getElementById('email').value = '';
+      document.getElementById('userId').value = '';
+    }
+
+    // Cargar usuarios cuando la página cargue
+    window.onload = loadUsers;
+  </script>
+</body>
+</html>

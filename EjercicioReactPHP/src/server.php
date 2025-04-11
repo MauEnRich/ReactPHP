@@ -1,71 +1,102 @@
 <?php
+require __DIR__ . '/../vendor/autoload.php';
 
-require __DIR__ . '/../vendor/autoload.php'; // Asegúrate de que la ruta sea correcta
-
-use React\Http\Server;
-use React\Socket\Server as SocketServer;
-use React\EventLoop\Factory as LoopFactory;
-use Psr\Http\Message\ServerRequestInterface;
+use React\Http\HttpServer;
 use React\Http\Message\Response;
+use Psr\Http\Message\ServerRequestInterface;
+use React\EventLoop\Factory;
+use React\Socket\SocketServer;
 
-$loop = LoopFactory::create(); // Crear el bucle de eventos
+$loop = Factory::create();
 
-// Servir el contenido según las rutas solicitadas
-$server = new Server(function (ServerRequestInterface $request) {
-    $uri = $request->getUri()->getPath(); // Obtener la ruta solicitada
+function getDataFile() {
+    return __DIR__ . '/../data/data.json';
+}
 
-    // Página de Inicio
-    if ($uri === '/') {
-        $content = file_get_contents(__DIR__ . '/../public/index.html');
-        return new Response(
-            200,
-            ['Content-Type' => 'text/html'],
-            $content
-        );
+function readData() {
+    $file = getDataFile();
+    if (!file_exists($file)) return [];
+    $content = file_get_contents($file);
+    return json_decode($content, true) ?: [];
+}
+
+function saveData($data) {
+    $file = getDataFile();
+    file_put_contents($file, json_encode($data, JSON_PRETTY_PRINT));
+}
+
+$server = new HttpServer(function (ServerRequestInterface $request) {
+    $path = $request->getUri()->getPath();
+    $method = $request->getMethod();
+
+    if ($path === '/') {
+        return new Response(200, ['Content-Type' => 'text/html'], file_get_contents(__DIR__ . '/../public/index.html'));
     }
 
-    // Página de Contacto
-    if ($uri === '/contact') {
-        $content = file_get_contents(__DIR__ . '/../public/contacto.html');
-        return new Response(
-            200,
-            ['Content-Type' => 'text/html'],
-            $content
-        );
+    if ($path === '/contacto') {
+        return new Response(200, ['Content-Type' => 'text/html'], file_get_contents(__DIR__ . '/../public/contacto.html'));
     }
 
-    // Ruta de Datos - devolver datos en formato JSON
-    if ($uri === '/data') {
-        $data = json_decode(file_get_contents(__DIR__ . '/../data/data.json'), true); // Cargar datos JSON
-        return new Response(
-            200,
-            ['Content-Type' => 'application/json'],
-            json_encode($data)
-        );
+    if ($path === '/crud') {
+        return new Response(200, ['Content-Type' => 'text/html'], file_get_contents(__DIR__ . '/../public/crud.html'));
     }
 
-    // Archivos Estáticos: servir el archivo CSS y otros recursos
-    if ($uri === '/style.css') {
-        $content = file_get_contents(__DIR__ . '/../public/style.css');
-        return new Response(
-            200,
-            ['Content-Type' => 'text/css'],
-            $content
-        );
+    if ($path === '/style.css') {
+        return new Response(200, ['Content-Type' => 'text/css'], file_get_contents(__DIR__ . '/../public/style.css'));
     }
 
-    // Respuesta para rutas no encontradas (404)
-    return new Response(
-        404,
-        ['Content-Type' => 'text/html'],
-        'Page not found'
-    );
+    if ($path === '/data') {
+        $body = $request->getBody()->getContents();
+        $input = json_decode($body, true);
+
+        if ($method === 'GET') {
+            // Obtener todos los usuarios
+            return new Response(200, ['Content-Type' => 'application/json'], json_encode(readData()));
+        }
+
+        if ($method === 'POST') {
+            // Crear nuevo usuario
+            $datos = readData();
+            $nuevo = [
+                'id' => count($datos) > 0 ? end($datos)['id'] + 1 : 1,
+                'nombre' => $input['nombre'],
+                'email' => $input['email']
+            ];
+            $datos[] = $nuevo;
+            saveData($datos);
+            return new Response(200, ['Content-Type' => 'application/json'], json_encode(['status' => 'ok']));
+        }
+
+        if ($method === 'DELETE') {
+            // Eliminar usuario
+            $datos = readData();
+            $datos = array_filter($datos, fn($d) => $d['id'] != $input['id']);
+            saveData(array_values($datos));
+            return new Response(200, ['Content-Type' => 'application/json'], json_encode(['status' => 'deleted']));
+        }
+
+        if ($method === 'PATCH') {
+            // Editar usuario
+            $datos = readData();
+            foreach ($datos as &$user) {
+                if ($user['id'] == $input['id']) {
+                    $user['nombre'] = $input['nombre'];
+                    $user['email'] = $input['email'];
+                    break;
+                }
+            }
+            saveData($datos);
+            return new Response(200, ['Content-Type' => 'application/json'], json_encode(['status' => 'updated']));
+        }
+
+        return new Response(405, [], "Método no permitido");
+    }
+
+    return new Response(404, [], "Ruta no encontrada");
 });
 
-// Crear el servidor en el puerto 8080
-$socket = new SocketServer('0.0.0.0:8080', $loop);
+$socket = new SocketServer('127.0.0.1:8000', [], $loop);
 $server->listen($socket);
 
-// Iniciar el servidor
-echo "Server running at http://localhost:8080\n";
+echo "Servidor ejecutándose en http://127.0.0.1:8000\n";
 $loop->run();
