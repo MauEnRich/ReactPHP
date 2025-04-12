@@ -124,6 +124,7 @@ form button {
 
 form button {
   background-color: #1f3a61;
+  width: 35%;
   color: white;
   cursor: pointer;
   border: none;
@@ -171,6 +172,66 @@ textarea:focus {
   outline: none;
   border-color: #1f3a61;
   box-shadow: 0 0 5px rgba(31, 58, 97, 0.5);
+}
+
+/* BOTONES DE ACCIÓN (TAMAÑO REDUCIDO) */
+.boton-accion {
+  padding: 4px 8px;
+  border: none;
+  border-radius: 4px;
+  color: white;
+  font-weight: bold;
+  cursor: pointer;
+  margin-right: 4px;
+  transition: background-color 0.3s ease;
+  font-size: 0.7rem;
+  font-family: 'Orbitron', sans-serif;
+}
+
+.boton-accion.editar {
+  background-color: #3498db;
+}
+
+.boton-accion.editar:hover {
+  background-color: #2980b9;
+}
+
+.boton-accion.eliminar {
+  background-color: #e74c3c;
+}
+
+.boton-accion.eliminar:hover {
+  background-color: #c0392b;
+}
+
+/* FORMULARIO DE ACTUALIZACIÓN */
+form input,
+form textarea,
+form button {
+  background-color: #34495e;
+  border: 1px solid #4f5d6a;
+  color: white;
+}
+
+form input[type="text"]:focus,
+form input[type="number"]:focus,
+form textarea:focus {
+  border-color: #1f3a61;
+  box-shadow: 0 0 5px rgba(31, 58, 97, 0.5);
+}
+
+form h2 {
+  font-size: 1.8rem;
+  color: #00d1ff;
+}
+
+form a {
+  color: #3498db;
+  text-decoration: none;
+}
+
+form a:hover {
+  text-decoration: underline;
 }
 
 /* RESPONSIVO */

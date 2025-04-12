@@ -4,7 +4,6 @@
   <meta charset="UTF-8">
   <title>Contacto</title>
   <link rel="stylesheet" href="/style.css">
-
 </head>
 <body>
   <header>
@@ -46,7 +45,7 @@
 
       const contacto = { nombre, email, mensaje };
 
-      const res = await fetch('/contacto', {
+      const res = await fetch('/enviar_contacto', {  // Actualizado para usar la ruta correcta
         method: 'POST',
         body: JSON.stringify(contacto),
         headers: { 'Content-Type': 'application/json' }
