@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>Contacto</title>
+  <link rel="stylesheet" href="/style.css">
+</head>
+<body>
+  <header>
+    <h1>Contacto</h1>
+    <br>
+    <br>
+    <nav>
+      <ul>
+        <li><a href="/">Inicio</a></li>
+        <li><a href="/data">Gestión de Productos</a></li>
+        <li><a href="/contacto">Contacto</a></li>
+      </ul>
+    </nav>
+  </header>
+
+  <main>
+    <br>
+    <br>
+    <br>
+    <form id="formContacto">
+      <h2>Formulario de Contacto</h2>
+      <input type="text" id="nombreContacto" placeholder="Tu nombre" required>
+      <input type="email" id="emailContacto" placeholder="Tu correo electrónico" required>
+      <textarea id="mensajeContacto" placeholder="Tu mensaje" required></textarea>
+      <button type="submit">Enviar Mensaje</button>
+    </form>
+  </main>
+
+  <footer>
+    <p>&copy; 2025 Tecnología S.A. | Todos los derechos reservados</p>
+  </footer>
+
+  <script>
+    document.getElementById('formContacto').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const nombre = document.getElementById('nombreContacto').value;
+      const email = document.getElementById('emailContacto').value;
+      const mensaje = document.getElementById('mensajeContacto').value;
+
+      const contacto = { nombre, email, mensaje };
+
+      const res = await fetch('/enviar_contacto', {  // Actualizado para usar la ruta correcta
+        method: 'POST',
+        body: JSON.stringify(contacto),
+        headers: { 'Content-Type': 'application/json' }
+      });
+
+      if (res.ok) {
+        alert('Mensaje enviado con éxito');
+        document.getElementById('formContacto').reset();
+      } else {
+        alert('Hubo un error al enviar el mensaje');
+      }
+    });
+  </script>
+</body>
+</html>
