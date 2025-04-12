@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Productos</title>
+    <link rel="stylesheet" href="/style.css">
+</head>
+<body>
+    <header>
+        <h1>Gestión de Productos</h1>
+        <nav>
+            <ul>
+                <li><a href="/">Inicio</a></li>
+                <li><a href="/data">Gestión de Productos</a></li>
+                <li><a href="/contacto">Contacto</a></li>
+            </ul>
+        </nav>
+    </header>
+
+    <main>
+        <section class="formulario">
+            <form action="/agregar_producto" method="POST">
+                <h2>Agregar Producto</h2>
+                <label for="nombre">Nombre:</label>
+                <input type="text" name="nombre" id="nombre" required>
+
+                <label for="descripcion">Descripción:</label>
+                <input type="text" name="descripcion" id="descripcion" required>
+
+                <label for="precio">Precio:</label>
+                <input type="number" name="precio" id="precio" step="0.01" required>
+
+                <label for="categoria">Categoría:</label>
+                <input type="text" name="categoria" id="categoria" required>
+
+                <button type="submit">Agregar Producto</button>
+            </form>
+        </section>
+
+        <section class="tabla-productos">
+            <h2>Productos Disponibles</h2>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Nombre</th>
+                        <th>Descripción</th>
+                        <th>Precio</th>
+                        <th>Categoría</th>
+                        <th>Acciones</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {{productos}}
+                </tbody>
+            </table>
+        </section>
+    </main>
+
+    <footer>
+        <p>&copy; 2025 Tecnología Web. Todos los derechos reservados.</p>
+    </footer>
+</body>
+</html>
